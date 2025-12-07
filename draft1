@@ -38,9 +38,7 @@ class Pokemon:
         return self.hp <= 0
 
 
-
 '''This block of code reads from the file that has data of pokemon: '''
-
 
 #Reads the data from the.csv file and adds them to a list of Pokémon dictionaries.
 pokemon_data = []   # list (collection type #1) <------------------------------------
@@ -67,8 +65,7 @@ captured_pokemon = [] #collection type 1: This is a list of the pokemon that get
 strong_pokemon = [] #List of strong pokemon
 
 
-
-'''The most important functions!!!'''
+'''The most important functions'''
 
 '''
 The following functions are the basic features of the game which include:
@@ -191,11 +188,11 @@ def use_item(player_pokemon, enemy_pokemon, is_trainer):
             print(f"\nYou threw a Pokéball!")
             if roll < chance: #this compares the value of the roll vs the actual chance to catch the pokemon. if the chance is higher than the roll, then the pokemon is caught. it is a very effective way to calculate the probability that we came up with. 
                 print(f"\n*** You caught {enemy_pokemon.name}! ***")
-                return "caught"
+                return "caught" #refer to line 238
             
             else:
                 print("\nOh no! It broke free!")
-                return "used_item"
+                return "used_item" 
         else:
             print("\nYou have no Pokeballs left!")
             return None
@@ -265,6 +262,16 @@ def main():
     active_pokemon_name = "Pikachu" # this is the currently active pokemon. 
     
     #We created a weighted wild pokemon list in order to determine the probability in which the pokemon can appear. Since there is a mix of strong and weaker pokemon from the .csv file, we wanted to even it out by making the stronger ones more rare.
+
+    '''The following percentages were calculated on the following logic: 
+        if one weak pokemon is added to the list, is added 10 times. If a 
+        medium strength pokemon is added, it is added 5 times to the list. 
+        If a strong pokemon is added to the list it is added 2 times. And of 
+        course, Mewtwo is only added once. In the list which has a total of 18
+        pokemon, 10/18 is 55.55%, 5/18 is 27.7%, 2/18 is 11%, and 1/18 is 5.5%.
+        Therefore, if you wanted to tweak the rates you could change how much 
+        pokemon to add to the list and how much of it to append to the list. '''
+    
     def weighted_wild_list(pokemon_data):
         weighted_list = []
         for mon in pokemon_data:
