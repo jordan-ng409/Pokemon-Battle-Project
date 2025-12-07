@@ -1,5 +1,19 @@
 Name,HP,Attack
-Pikachu,35,10
-Charmander,33,9
-Squirtle,33,8
-Bulbasaur,40,9
+Pikachu,350,10
+Charmander,330,9
+Squirtle,330,9
+Bulbasaur,350,9
+Eevee, 350, 10
+Ratatta, 260, 8
+Nidoran, 270, 9
+Zubat, 255, 8
+Diglett, 280, 9
+Pidgy, 280, 8
+Bellsprout, 310, 9
+Caterpie, 250, 8
+Spearow, 290, 9
+Weedle, 280, 9
+Ekans, 280, 10
+Vulpix, 280, 9
+Abra, 260, 2
+Mewtwo, 600, 30
