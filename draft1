@@ -1,9 +1,10 @@
-# ============================================
+# =====================================================
 # Pokémon Battle simulation
 # Authors: Dharmagat Neupane, Jordan Ng, Prakash Dangi
-# ============================================
+# =====================================================
 
 import random
+
 #============================
 # Defining the pokemon class:
 #============================
@@ -19,17 +20,20 @@ class Pokemon:
     def attack_target(self, target, move_power):
         #Attack another Pokémon and apply damage.
         damage = self.attack + move_power - random.randint(0, 4)
-        damage = max(damage, 1)
+        if damage < 1:
+            damage = 1
+        print(f"\nIt dealt {damage} damage!")
         target.take_damage(damage)
-        print(f"\n{self.name} used an attack! It dealt {damage} damage!")
 
     def take_damage(self, amount):
         #Reduce HP when taking damage.
-        self.hp = max(self.hp - amount, 0)
-        print(f"\n{self.name} has {self.hp}/{self.max_hp} HP.")
+        self.hp = self.hp - amount
+        if self.hp < 0:
+            self.hp = 0
+        print(f"\n{self.name} has {self.hp}/{self.max_hp} HP remaining.")
 
     def is_fainted(self):
-        """Return True if HP is zero."""
+        #Return True if HP is zero.
         return self.hp <= 0
 
 
@@ -37,107 +41,203 @@ class Pokemon:
 #================================================================
 # This block of code reads from the file that has data of pokemon
 #================================================================
+
+
 def load_pokemon_from_file(filename):
    #Reads Pokémon data from a file and return a list of Pokémon dictionaries.
-    pokemon_list = []   # list (collection #1)
+    wild_pokemon_list = []   # list (collection type #1) <------------------------------------
 
     with open("Project/pokemondata.csv","r") as file:
         for line in file:
             line = line.strip()
             name, hp, attack = line.split(",")
             if name != "Name":
-                pokemon_list.append({"name": name, "hp": int(hp),"attack": int(attack)})
+                wild_pokemon_list.append({"name": name, "hp": int(hp),"attack": int(attack)})
 
-    return pokemon_list
-
-
-# ======================
-# Moves stored as tuples
-# ======================
-
-MOVES = [("Tackle", 6), ("Growl", 0)]   
+    return wild_pokemon_list
 
 
-# The rubric said three distinct collection types, so here's another one: tuples.
+#The rubric said three different collection types so we have tuples, dictionaries, and lists:
 
+# =========================================================
+# Moves stored as tuples and inventory stored in dictionary
+# =========================================================
+
+MOVES = [("Tackle", 30), ("Growl", 0)]  #collection type #2
+inventory = {"Potion": 3, "Pokeball": 5} #collection type #3
 
 
 # =============================
 # The most important functions
 # =============================
+
+
+#The following functions are the basic features of the game which include:
+#The main menu, the player's turn, choosing a move, using an item, the enemy's turn, and then the battle loop.
+
+#Main menu function
 def display_main_menu():
     print("\n==============================")
     print("  Pokémon Battle Simulator")
     print("==============================")
-    print("1. Battle a Wild Pokémon")
+    print("\n1. Battle a Wild Pokémon")
     print("2. Battle a Trainer")
     print("3. Quit")
-    return input("Choose an option (1-3): ")
+    return input("\nChoose an option (1-3): ")
 
 
-def choose_move():
-    #Function that lets the player choose a move
-    print("\nChoose a move:")
-    move_number = 1
-    for move in MOVES: #<------------- calling the moves from the MOVES tuple
-        print(f"{move_number}. {move[0]}")
-        move_number += 1
+#This function prompts when it is the player's turn:
+def player_turn(player_pokemon, enemy_pokemon, is_trainer = False):
+    while True:
+        print("\nWhat will you do?")
+        print("1. Fight")
+        print("2. Bag")
+        print("3. Run")
+        action = input("\nChoose an action: ")
+        
+        if action == "1":
+            move_index = choose_move()
+            move_name, move_power = MOVES[move_index-1]
 
-    choice = input("Move: ")
+            # The move growl does not do any damage, it only lowers the opposing pokemon's attack.
+            if move_name == "Growl":
+                print(f"\n{player_pokemon.name} used Growl!")
+                if enemy_pokemon.attack > 1:
+                    enemy_pokemon.attack -= 1
+                    print(f"\nEnemy {enemy_pokemon.name}'s attack fell!")
+                else:
+                    print("\nBut it had no effect!")
+            else:
+                print(f"\n{player_pokemon.name} used {move_name}!")
+                player_pokemon.attack_target(enemy_pokemon, move_power)
 
-    if choice in ["1", "2"]:
-        return int(choice) 
-    else:
-        print("{self.name} did not respond to that. Try another move")
-        return 0
+            return None #This is to ensure that the battle loops
+        
+        elif action == "2":
+            result = use_item(player_pokemon, enemy_pokemon, is_trainer)
+            if result == "caught":
+                return "caught"
+            if result == "used_item":
+                return None
+            
+        elif action == "3":
+            if is_trainer:
+                print("\nYou can't run from a Trainer Battle!")
+                return None
+            print("You got away safely!")
 
-
-def player_turn(player_pokemon, enemy_pokemon):
-    #this function prompts when it is the player's turn
-
-    print("\nYour turn!")
-    print("1. Fight")
-    print("2. Run")
-    action = input("Choose an action: ")
-
-    if action == "1":
-        move_index = choose_move()
-        move_name, move_power = MOVES[move_index]
-
-        # The move growl does not do any damage, it only lowers the opposing pokemon's attack.
-        if move_name == "Growl":
-            if enemy_pokemon.attack < 1:
-                enemy_pokemon.attack = 1
-            print(f"{player_pokemon.name} used Growl! Enemy attack fell!")
         else:
-            player_pokemon.attack_target(enemy_pokemon, move_power)
+            print("\nThat's not an option!")
 
-    elif action == "2":
-        print("You ran away!")
-        return "run"
+#Function that lets the player choose a move:
+def choose_move():
+    
+    while True:
+        print("\nChoose a move:")
+        move_number = 1
+        for move in MOVES: #<------------- calling the moves from the MOVES tuple
+            print(f"{move_number}. {move[0]}")
+            move_number += 1
 
-    return None
+        choice = input("\nMove: ")
+        if choice in ["1", "2"]:
+            return int(choice) 
+        
+        print("\nInvalid move. Try again.")
 
+#This function allows for the item functionality, letting the player heal or catch wild pokemon:
+def use_item(player_pokemon, enemy_pokemon, is_trainer):
+    print("\nYour Bag:")
+    print(f"1. Potion ({inventory['Potion']} left)")
+    print(f"2. Pokeball ({inventory['Pokeball']} left)")
+    print("3. Cancel")
 
+    choice = input("\nChoose an item: ")
+
+    # POTION
+    # Since we wanted the item quantity to be the value in the dictionary, we decided to have the potion's healing function to be within a nested selection statement
+
+    if choice == "1":
+        if inventory["Potion"] > 0:
+            inventory["Potion"] -= 1
+            heal_amount = 20
+            player_pokemon.hp += heal_amount
+            if player_pokemon.hp > player_pokemon.max_hp:
+                player_pokemon.hp = player_pokemon.max_hp
+            print(f"\nYou used a Potion! {player_pokemon.name} healed 20 HP!")
+            print(f"{player_pokemon.name} now has {player_pokemon.hp}/{player_pokemon.max_hp} HP.")
+            return "used_item"
+        else:
+            print("\nYou have no Potions left!")
+            return None
+
+    # POKEBALL
+    elif choice == "2":
+        if is_trainer:
+            print("\nYou can't catch a Trainer's Pokémon!")
+            return None
+
+        if inventory["Pokeball"] > 0:
+            inventory["Pokeball"] -= 1
+
+            # Simple catch formula
+            chance = (enemy_pokemon.max_hp - enemy_pokemon.hp) / enemy_pokemon.max_hp
+            roll = random.random()
+
+            print(f"\nYou threw a Pokéball!")
+            if roll < chance:
+                print(f"\n*** You caught {enemy_pokemon.name}! ***")
+                return "caught"
+            else:
+                print("\nOh no! It broke free!")
+                return "used_item"
+        else:
+            print("\nYou have no Pokeballs left!")
+            return None
+
+    # CANCEL
+    else:
+        return None
+
+#This function is for the enemy's turn:
 def enemy_turn(enemy_pokemon, player_pokemon):
-    #Enemy attacks with a basic move.
-    move_power = random.randint(4, 8)
-    print(f"\n{enemy_pokemon.name}'s turn!")
-    enemy_pokemon.attack_target(player_pokemon, move_power)
+    print("\n..........")
+    move_name, move_power = random.choice(MOVES) #after doing some research, I figured that this was the easiest way to make it so that the opposing pokemon could randomly use one of the moves from the tuple.
 
+    #Just like the trainer, the enemy pokemon is given the ability to use growl
+    if move_name == "Growl":
+        print(f"\nEnemy {enemy_pokemon.name} used Growl!")
+        if player_pokemon.attack > 1:
+            player_pokemon.attack -= 1
+            print(f"\n{player_pokemon.name}'s attack fell!")
+        else:
+            print(f"\nBut it had no effect!")
 
-def battle_loop(player_pokemon, enemy_pokemon, is_trainer=False):
-    #Main battle loop.
-    print(f"\nA {'trainer' if is_trainer else 'wild'} {enemy_pokemon.name} appeared!")
-    print(f"Go, {player_pokemon.name}!")
+    # This section is for if the move is a damaging move.
+    else:
+        print(f"\nEnemy {enemy_pokemon.name} used {move_name}!")
+        enemy_pokemon.attack_target(player_pokemon, move_power)
+
+#This function is the main battle loop, recalling the player_turn and enemy_turn functions:
+def battle_loop(player_pokemon, enemy_pokemon, is_trainer = False):
+    if is_trainer:
+        print(f"\nOpposing Trainer sent out {enemy_pokemon.name}!")
+    else:
+        print(f"\nA wild {enemy_pokemon.name} appeared!")
+
+    print(f"\nGo, {player_pokemon.name}!")
 
     while True:
-        result = player_turn(player_pokemon, enemy_pokemon)
+        result = player_turn(player_pokemon, enemy_pokemon, is_trainer)
         if result == "run":
             break
 
+        if result == "caught":
+            print(f"\nYou successfully captured {enemy_pokemon.name}!")
+            break
+
         if enemy_pokemon.is_fainted():
-            print(f"{enemy_pokemon.name} fainted! You win!")
+            print(f"Enemy {enemy_pokemon.name} fainted! You win!")
             break
 
         enemy_turn(enemy_pokemon, player_pokemon)
@@ -148,11 +248,13 @@ def battle_loop(player_pokemon, enemy_pokemon, is_trainer=False):
 
 
 # ===============================================
-# This block of code is the main part of the game
+# This function is the main part of the game
 # ===============================================
+
+#This section of the code puts everything together. It loads information from the file using the file function we created, and also recalls the battle_loop function:
+
 def main():
-    #Main program flow.
-    pokemon_data = load_pokemon_from_file("pokemondata.txt")  # list of dicts
+    pokemon_data = load_pokemon_from_file("pokemondata.csv")  # loading the pokemon from the file that were parsed through
 
     while True:
         choice = display_main_menu()
@@ -162,7 +264,7 @@ def main():
             player_info = pokemon_data[0]
             player = Pokemon(player_info["name"], player_info["hp"], player_info["attack"])
 
-            wild_info = pokemon_data[2]
+            wild_info = random.choice(pokemon_data) #This allows for a wild pokemon to be a random one out of the many that we wrote into the .csv file
             enemy = Pokemon(wild_info["name"], wild_info["hp"], wild_info["attack"])
 
             battle_loop(player, enemy, is_trainer=False)
