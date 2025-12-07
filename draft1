@@ -1,14 +1,12 @@
-# ===========================================================================================
+
 # Pokémon Battle simulation
 # Authors: Dharmagat Neupane, Jordan Ng, Prakash Dangi
 # Many hours were spent on this project but we had a lot of fun working on it. Hope you enjoy!
-# ============================================================================================
+
 
 import random
 
-#============================
-# Defining the pokemon class:
-#============================
+'''Defining the pokemon class: '''
 
 #This class defines a pokemon and all of it's functions/attributes.
 
@@ -22,7 +20,7 @@ class Pokemon:
 
     def attack_target(self, target, move_power):
         #Attack another Pokémon and apply damage.
-        damage = self.attack + move_power - random.randint(0, 4)
+        damage = self.attack + move_power - random.randint(0, 4) #the random number is to add some variability to the attack power, otherwise the attack power is too predictable each time
         if damage < 1:
             damage = 1
         print(f"\nIt dealt {damage} damage!")
@@ -40,30 +38,25 @@ class Pokemon:
         return self.hp <= 0
 
 
-#================================================================
-# This block of code reads from the file that has data of pokemon
-#================================================================
 
-#We made the fileio a function in order to call it later:
+'''This block of code reads from the file that has data of pokemon: '''
 
-def load_pokemon_from_file(filename):
-   #Reads Pokémon data from the.csv file and adds them to a list of Pokémon dictionaries.
-    wild_pokemon_list = []   # list (collection type #1) <------------------------------------
-    with open("Project/pokemondata.csv","r") as file:
-        for line in file:
-            line = line.strip()
-            name, hp, attack = line.split(",") 
-            if name != "Name":
-                wild_pokemon_list.append({"name": name, "hp": int(hp),"attack": int(attack)})
 
-    return wild_pokemon_list
+#Reads the data from the.csv file and adds them to a list of Pokémon dictionaries.
+pokemon_data = []   # list (collection type #1) <------------------------------------
+
+with open("Project/pokemondata.csv","r") as file:
+    for line in file:
+        line = line.strip()
+        name, hp, attack = line.split(",") 
+        if name != "Name": #skips over the first line
+            pokemon_data.append({"name": name, "hp": int(hp),"attack": int(attack)})
 
 
 #The rubric said three different collection types so we have tuples, dictionaries, and lists:
 
-# ==========================================================================================
-# Moves stored as tuples and inventory stored in dictionary, and a list for captured pokemon
-# ==========================================================================================
+
+'''Moves stored as tuples and inventory stored in dictionary, and a list for captured pokemon'''
 
 MOVES = [("Tackle", 20), ("Growl", 0)]  #collection type 2: These are the available moves for every pokemion stored in a tuple.
 
@@ -74,12 +67,13 @@ captured_pokemon = [] #collection type 1: This is a list of the pokemon that get
 strong_pokemon = [] #List of strong pokemon
 
 
-# ================================
-# The most important functions!!!
-# ================================
 
-#The following functions are the basic features of the game which include:
-#The main menu, the player's turn, choosing a move, using an item, the enemy's turn, and then the battle loop.
+'''The most important functions!!!'''
+
+'''
+The following functions are the basic features of the game which include:
+The main menu, the player's turn, choosing a move, using an item, the enemy's turn, and then the battle loop.
+'''
 
 #Main menu function
 def display_main_menu():
@@ -96,7 +90,7 @@ def display_main_menu():
 
 
 #This function codes the action within player's turn:
-def player_turn(player_pokemon, enemy_pokemon, is_trainer = False):
+def player_turn(player_pokemon, enemy_pokemon, is_trainer = False): #is_trainer is intended to determine whether the fight is a wild battle or trainer battle
     while True:
         print("\nWhat will you do?")
         print("1. Fight")
@@ -106,12 +100,12 @@ def player_turn(player_pokemon, enemy_pokemon, is_trainer = False):
         
         if action == "1":
             move_index = choose_move()
-            move_name, move_power = MOVES[move_index-1]
+            move_name, move_power = MOVES[move_index-1] 
 
             # The move growl does not do any damage, it only lowers the opposing pokemon's attack.
             if move_name == "Growl":
                 print(f"\n{player_pokemon.name} used Growl!")
-                if enemy_pokemon.attack > 1:
+                if enemy_pokemon.attack > 1: 
                     enemy_pokemon.attack -= 1
                     print(f"\nEnemy {enemy_pokemon.name}'s attack fell!")
                 else:
@@ -133,7 +127,7 @@ def player_turn(player_pokemon, enemy_pokemon, is_trainer = False):
             if is_trainer:
                 print("\nYou can't run from a Trainer Battle!")
                 return None
-            print("You got away safely!")
+            print("\nYou got away safely!")
             return "run"
 
         else:
@@ -212,8 +206,8 @@ def use_item(player_pokemon, enemy_pokemon, is_trainer):
 
 #This function is for the enemy's turn:
 def enemy_turn(enemy_pokemon, player_pokemon):
-    print("\n..........")
-    move_name, move_power = random.choice(MOVES) #after doing some research, I figured that this was the easiest way to make it so that the opposing pokemon could randomly use one of the moves from the tuple.
+    print("\n..........") #just a line intended to indicate when the opponent makes a move
+    move_name, move_power = random.choice(MOVES) #we learned that the random.choice feature is an easy way to select a random item from a list, dictionary, or tuple, so we have utilized it a few times throughout the code.
 
     #Just like the trainer, the enemy pokemon is given the ability to use growl
     if move_name == "Growl":
@@ -224,7 +218,7 @@ def enemy_turn(enemy_pokemon, player_pokemon):
         else:
             print(f"\nBut it had no effect!")
 
-    # This section is for if the move is a damaging move.
+    # This section is for if the enemy's move is tackle.
     else:
         print(f"\nEnemy {enemy_pokemon.name} used {move_name}!")
         enemy_pokemon.attack_target(player_pokemon, move_power)
@@ -242,33 +236,33 @@ def battle_loop(player_pokemon, enemy_pokemon, is_trainer = False):
         result = player_turn(player_pokemon, enemy_pokemon, is_trainer)
         if result == "run":
             break
-
+        
+        #For when a pokemon is caught
         if result == "caught":
             print(f"\nYou successfully captured {enemy_pokemon.name}!")
             captured_pokemon.append(enemy_pokemon.name)
             print(f"{enemy_pokemon.name} was added to your box.")
             break
-        
+
+        #If the enemy's pokemon fainted
         if enemy_pokemon.is_fainted():
             print(f"Enemy {enemy_pokemon.name} fainted! You win!")
             break
-
         enemy_turn(enemy_pokemon, player_pokemon)
 
+        #When your pokemon faints
         if player_pokemon.is_fainted():
             print(f"{player_pokemon.name} fainted! You lost!")
             break
 
 
-# ===============================================
-# This function is the main part of the game
-# ===============================================
+'''This function is the main part of the game'''
+
 
 #The main purpose of this function is to give functionality to the main menu display. It also loads information from the file using the file function we created, and also recalls the battle_loop function, putting everything together.
 
 def main():
     active_pokemon_name = "Pikachu" # this is the currently active pokemon. 
-    pokemon_data = load_pokemon_from_file("pokemondata.csv")  # loading the pokemon from the file that were parsed through
     
     #We created a weighted wild pokemon list in order to determine the probability in which the pokemon can appear. Since there is a mix of strong and weaker pokemon from the .csv file, we wanted to even it out by making the stronger ones more rare.
     def weighted_wild_list(pokemon_data):
@@ -310,7 +304,7 @@ def main():
 
     #This determines strong pokemon, hence the condition being pokemon being over 700 hp. The trainer will have a randomly chosen pokemon among the strong. Idea by Dharma
     for mon in pokemon_data:
-        if mon["hp"] >= 700 and mon["hp"]<= 880: 
+        if mon["hp"] >= 700 and mon["hp"]<= 900: 
             strong_pokemon.append(mon)
 
     #The main loop!
@@ -369,35 +363,37 @@ def main():
             for name in available_pokemon: #this orders the available pokemon by number
                 print(str(number) + ". " + name)
                 number += 1
-            
+
+            '''We wrote the following section of code after learning about exceptions in class so we tried adding it here: '''
+    
             while True:
                 pick = input("Choose a Pokémon number: ")
                 try:
                     pick = int(pick)
-                except ValueError:
+                except ValueError: #if a letter or other character that's not a number is typed in
                     print("That's not a number! Try again.")
                     continue  
 
-                if pick < 1 or pick > len(available_pokemon):
+                if pick < 1 or pick > len(available_pokemon): #if the number chosen is not within the number of available pokemon
                     print("That number is not an option. Try again.")
                     continue
 
-                active_pokemon_name = available_pokemon[pick - 1]
-                print(f"Your active pokemon is now {active_pokemon_name}.")
+                active_pokemon_name = available_pokemon[pick - 1] #a successful pick
+                print(f"\nYour active pokemon is now {active_pokemon_name}.")
                 break
         
         elif choice == "5":
         #This choice displays tips that we have created in order to fully enjoy the game.
             print("\nHere are some tips :) ")
-            print("\n- You can switch out your starter pokemon in the main menu.")
+            print("\n- You can switch out your starter pokemon in the main menu. There are 5 options to choose from.")
             print("\n- There are many wild pokemon available. Try to catch stronger ones in order to beat the trainer.")
             print("\n- If you jump straight into a trainer fight from the get-go, you might get cooked.")
             print("\n- If you are struggling with catching a wild pokemon, try lowering it's health first.")
-            print("\n- Using growl against a stronger pokemon can help you survive.")
-            print("\n- There is no level up function so if you encounter a stronger pokemon in the wild, you can either try to beat it or just run lol.")
+            print("\n- Using growl against a stronger pokemon can help you survive by lowering it's attacking power.")
+            print("\n- There is no level up function so if you encounter a stronger pokemon in the wild, you can either try to catch it or just run lol.")
             print("\n- If you are low on hp, use your potions.")
             print("\n- Unfortunately we did not add types into the game so there is no type advantage/type advantage moves. On the flip side, it adds a strategic challenge to the game.")
-            print("\n- There is a rare chance to encounter a certain legendary pokemon. Good luck if you find it.") 
+            print("\n- There is a rare chance to encounter a certain legendary pokemon in the wild. Good luck if you find it.") 
 
         elif choice == "6":
             print("Thanks for playing! Credits: Dharmagat Neupane, Jordan Ng, and Prakash Dangi. ")
