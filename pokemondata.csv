@@ -1,19 +1,40 @@
 Name,HP,Attack
-Pikachu,350,10
+Pikachu,335,10
 Charmander,330,9
 Squirtle,330,9
 Bulbasaur,350,9
-Eevee, 350, 10
+Eevee, 335, 10
 Ratatta, 260, 8
-Nidoran, 270, 9
+Raticate, 420, 23
+Nidoran♂, 270, 9
+Nidorino, 460, 23
+Nidoking, 760, 38
 Zubat, 255, 8
+Golbat, 425, 24
 Diglett, 280, 9
+Dugtrio, 560, 26
 Pidgy, 280, 8
-Bellsprout, 310, 9
+Pidgeotto, 430, 13
+Pidgeot, 700, 35
+Scyther, 500, 25
 Caterpie, 250, 8
+Metapod, 360, 1
+Butterfree, 560, 27
 Spearow, 290, 9
 Weedle, 280, 9
+Kakuna, 360, 1
+Beedrill, 580, 28
 Ekans, 280, 10
+Arbok, 360, 24
 Vulpix, 280, 9
+Ninetails, 670, 30
 Abra, 260, 2
-Mewtwo, 600, 30
+Kadabra, 410, 12
+Alakazam, 720, 43
+Charmeleon, 500, 23
+Charizard, 780, 50
+Wartortle, 510, 23
+Blastoise, 800, 49
+Ivysaur, 550, 23
+Venusaur, 820, 49
+Mewtwo, 900, 60
